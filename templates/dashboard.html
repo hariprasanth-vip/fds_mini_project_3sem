@@ -4,6 +4,87 @@
     <title>Hall Booking Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Chart.js for interactive histograms -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Attractive CSS for dashboard and histogram */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8f9fe;
+            margin: 0;
+            padding: 0;
+            color: #123;
+        }
+        header {
+            background: #2e86de;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 7px rgba(34,34,68,.08);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            background: #38ada9;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .nav-link:hover { background: #079992; }
+        .dashboard-container {
+            max-width: 1150px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 1.2rem;
+            box-shadow: 0 5px 19px 0 rgba(25,42,66,.10);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #f5fafd;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        thead tr {
+            background: #2e86de;
+            color: #fff;
+        }
+        tbody tr:nth-child(even) { background: #eaf6ff; }
+        th, td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #c7ecee;
+        }
+        th { font-weight: 600; }
+        #histogram-area {
+            padding: 1.5rem;
+            background: #f8fbfe;
+            border-radius: 1rem;
+            box-shadow: 0 2px 9px 0 rgba(36,37,38,.07);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        #histogram-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #095366;
+            margin-bottom: 0.8rem;
+        }
+        @media (max-width: 700px) {
+            .dashboard-container, #histogram-area { padding: 0.5rem; }
+            th, td { padding: 0.4rem; font-size: 0.97rem; }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -11,22 +92,130 @@
         <a href="/booking" class="nav-link back-link">← Back to Booking</a>
     </header>
 
-    <table id="bookingsTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Hall Name</th>
-                <th>Date</th>
-                <th>Attendees</th>
-                <th>Booked By</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="dashboard-container">
+        <!-- Table as before -->
+        <table id="bookingsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Hall Name</th>
+                    <th>Date</th>
+                    <th>Attendees</th>
+                    <th>Booked By</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data goes here -->
             </tbody>
-    </table>
-    <p id="loading-msg"></p>
+        </table>
+        <p id="loading-msg"></p>
 
+        <!-- Histogram Chart Container -->
+        <div id="histogram-area" style="display: none;">
+            <div id="histogram-title">Live Bookings per Hall</div>
+            <canvas id="histogramChart" height="100"></canvas>
+        </div>
+    </div>
     <script>
+        // Store chart instance globally for updates
+        let histogramChart = null;
+
+        // Function to group bookings data
+        function computeBookingsPerHall(bookings) {
+            // Only keep records that have a hallName and other required data
+            const hallCounts = {};
+            bookings.forEach(b => {
+                // Only count if hall name is present and non-empty
+                const hall = b.Hall_Name || b.hall_name || b.hall || "";
+                if (!hall) return; // Skip records without hall name
+                hallCounts[hall] = (hallCounts[hall] || 0) + 1;
+            });
+            return hallCounts;
+        }
+
+        // Function to draw/update Histogram
+        function updateHistogram(bookings) {
+            const histogramArea = document.getElementById('histogram-area');
+            const titleDiv = document.getElementById('histogram-title');
+            const ctx = document.getElementById('histogramChart').getContext('2d');
+
+            // Compute only on available booking data
+            const hallCounts = computeBookingsPerHall(bookings);
+            const labels = Object.keys(hallCounts);
+            const data = Object.values(hallCounts);
+
+            if (labels.length === 0) {
+                histogramArea.style.display = "none";
+                return;
+            }
+            histogramArea.style.display = "block";
+
+            // Chart.js: destroy previous chart instance
+            if (histogramChart) histogramChart.destroy();
+
+            histogramChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "# Bookings",
+                        data: data,
+                        backgroundColor: [
+                            "#4e97d1",
+                            "#38ada9",
+                            "#f8c291",
+                            "#b71540",
+                            "#079992",
+                            "#8854d0"
+                        ],
+                        borderColor: "#2e86de",
+                        borderWidth: 1.8,
+                        hoverBackgroundColor: "#2574a9",
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: "#fff",
+                            titleColor: "#2574a9",
+                            bodyColor: "#557",
+                            borderColor: "#c7ecee",
+                            borderWidth: 1,
+                            callbacks: {
+                                label: context => ` ${context.parsed.y} bookings`
+                            }
+                        }
+                    },
+                    animation: { duration: 700, easing: 'easeOutQuart' },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Hall Name', color: '#2574a9', font: { weight: 600, size: 15 }},
+                            ticks: { color: "#525", font: { weight: 500 }},
+                            grid: { display: false }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Number of Bookings', color: '#2574a9', font: { weight: 600, size: 15 }},
+                            ticks: { color: "#525", stepSize: 1 },
+                            grid: { color: "#eef6fa", borderDash: [4,4] }
+                        }
+                    },
+                    onClick: function(e, elements) {
+                        // Extra: interactivity on click, maybe future expansion
+                        if(elements.length>0){
+                            const idx = elements[0].index;
+                            alert("Hall: "+labels[idx]+"\nBookings: "+data[idx]);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to populate table and update histogram
         async function loadBookings() {
             const loadingMsg = document.getElementById('loading-msg');
             loadingMsg.innerText = "Loading bookings...";
@@ -36,38 +225,36 @@
                 const data = res.data;
                 const tbody = document.querySelector('#bookingsTable tbody');
                 tbody.innerHTML = '';
-                loadingMsg.innerText = ""; // Clear loading message
+                loadingMsg.innerText = "";
 
-                // ✅ FIX: API output (orient='records') is a direct array of objects.
-                const bookings = data; 
+                const bookings = data;
+
+                updateHistogram(bookings);
 
                 if (bookings.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No bookings found yet.</td></tr>';
                     return;
                 }
-
                 bookings.forEach(b => {
                     const tr = document.createElement('tr');
-                    // We use keys that match the DataFrame columns set in app.py (e.g., Booking_ID)
                     tr.innerHTML = `
-                        <td>${b.Booking_ID}</td>
-                        <td>${b.Hall_Name}</td>
-                        <td>${b.Booking_Date}</td>
-                        <td>${b.Attendees_Count}</td>
-                        <td>${b.Booked_By}</td>
+                        <td>${b.Booking_ID || b.id || ''}</td>
+                        <td>${b.Hall_Name || b.hall_name || ''}</td>
+                        <td>${b.Date || b.date || ''}</td>
+                        <td>${b.Attendees || b.attendees || ''}</td>
+                        <td>${b.Booked_By || b.booked_by || ''}</td>
                     `;
                     tbody.appendChild(tr);
                 });
-            } catch(e) {
-                console.error("Booking load error:", e);
-                loadingMsg.innerText = "❌ Could not load bookings. Please check server or log in again.";
-                // If unauthorized, redirect to login
-                if (e.response && e.response.status === 401) {
-                    window.location.href = '/'; 
-                }
+            } catch (e) {
+                loadingMsg.innerText = "Failed to load bookings.";
+                updateHistogram([]); // Hide histogram
             }
         }
-        loadBookings();
+
+        // Poll every 5 seconds for live histogram update
+        setInterval(loadBookings, 5000);
+        window.onload = loadBookings;
     </script>
 </body>
 </html>
