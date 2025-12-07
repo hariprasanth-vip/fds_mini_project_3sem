@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hall Booking Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>📊 All Bookings Dashboard</h1>
+        <a href="/booking" class="nav-link back-link">← Back to Booking</a>
+    </header>
+
+    <table id="bookingsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Hall Name</th>
+                <th>Date</th>
+                <th>Attendees</th>
+                <th>Booked By</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+    <p id="loading-msg"></p>
+
+    <script>
+        async function loadBookings() {
+            const loadingMsg = document.getElementById('loading-msg');
+            loadingMsg.innerText = "Loading bookings...";
+
+            try {
+                const res = await axios.get('/api/bookings');
+                const data = res.data;
+                const tbody = document.querySelector('#bookingsTable tbody');
+                tbody.innerHTML = '';
+                loadingMsg.innerText = ""; // Clear loading message
+
+                // ✅ FIX: API output (orient='records') is a direct array of objects.
+                const bookings = data; 
+
+                if (bookings.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No bookings found yet.</td></tr>';
+                    return;
+                }
+
+                bookings.forEach(b => {
+                    const tr = document.createElement('tr');
+                    // We use keys that match the DataFrame columns set in app.py (e.g., Booking_ID)
+                    tr.innerHTML = `
+                        <td>${b.Booking_ID}</td>
+                        <td>${b.Hall_Name}</td>
+                        <td>${b.Booking_Date}</td>
+                        <td>${b.Attendees_Count}</td>
+                        <td>${b.Booked_By}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch(e) {
+                console.error("Booking load error:", e);
+                loadingMsg.innerText = "❌ Could not load bookings. Please check server or log in again.";
+                // If unauthorized, redirect to login
+                if (e.response && e.response.status === 401) {
+                    window.location.href = '/'; 
+                }
+            }
+        }
+        loadBookings();
+    </script>
+</body>
+</html>
