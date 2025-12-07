@@ -1,6 +1,403 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>College Hall Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #e9eafc 0%, #d8f3e8 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(90deg, #2464ac 0%, #7ed6c1 100%);
+            padding: 20px 0 12px 0;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 2px 20px rgba(34, 60, 80, 0.10);
+            text-align: center;
+        }
+        header h1 {
+            margin: 0 0 6px 0;
+            font-size: 2em;
+            font-weight: 700;
+            color: #214073;
+            letter-spacing: 1px;
+        }
+        .user-info {
+            color: #2464ac;
+            background: #f6fcff;
+            border-radius: 10px;
+            display: inline-block;
+            padding: 6px 18px;
+            font-weight: 500;
+            margin-bottom: 3px;
+            font-size: 1em;
+        }
+        nav {
+            margin-top: 10px;
+        }
+        .nav-link {
+            color: #1c3a70;
+            margin: 0 8px;
+            font-size: 1.08em;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 16px;
+            padding: 6px 13px;
+            background: #e0f0fa;
+            transition: background 0.19s, color 0.19s;
+        }
+        .nav-link:hover, .logout-link:hover { 
+            background: #7ed6c1; color: #15445c;
+        }
+        .logout-link {
+            color: #d6336c!important;
+            background: #fff0f2;
+        }
+        .form-section {
+            margin: 30px auto 16px auto;
+            max-width: 440px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 14px;
+            padding: 28px 24px 22px 24px;
+            box-shadow: 0 2.5px 16px rgba(50,108,196,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+            align-items: flex-start;
+        }
+        .form-section label {
+            color: #2464ac;
+            font-weight: 500;
+            font-size: 1.04em;
+        }
+        .form-section input[type="date"] {
+            font-size: 1em;
+            padding: 7px 10px;
+            background: #f7faff;
+            border: 1.5px solid #d2e6f5;
+            border-radius: 7px;
+        }
+        .form-section button {
+            margin-top: 6px;
+            background: #2464ac;
+            color: #fff;
+            border: none;
+            padding: 8px 23px;
+            border-radius: 7px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .form-section button:hover {
+            background: #1547a3;
+        }
+        h2 {
+            margin: 38px 0 13px 0;
+            text-align: center;
+            font-weight: 700;
+            background: linear-gradient(60deg, #2464ac 0%, #7ed6c1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.36em;
+            letter-spacing: 1px;
+        }
+        .hall-container-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            max-width: 1150px;
+            margin: 0 auto 44px auto;
+            justify-content: center;
+        }
+        .hall-card {
+            background: #fff;
+            border-radius: 13px;
+            box-shadow: 0 2.5px 12px 0 rgba(31,38,135,0.09);
+            width: 240px;
+            padding: 22px 17px 18px 17px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            transition: box-shadow 0.18s;
+            position: relative;
+        }
+        .hall-card.available {
+            border: 2px solid #26c485;
+        }
+        .hall-card.booked {
+            border: 2px solid #d66ba0;
+            opacity: 0.68;
+        }
+        .hall-card h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #2464ac;
+            font-weight: 600;
+            font-size: 1.22em;
+        }
+        .hall-card p {
+            margin: 0 0 8px 0;
+            color: #2b3954;
+            font-size: 1em;
+        }
+        .hall-card strong {
+            font-size: 1.06em;
+        }
+        .hall-card input[type="number"] {
+            width: 100%;
+            border: 1px solid #b9def4;
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin: 9px 0 8px 0;
+            font-size: 1em;
+        }
+        .hall-card button {
+            background: #2464ac;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 8px 0;
+            font-size: 1.08em;
+            font-weight: 500;
+            margin-top: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+        .hall-card button:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+        .hall-card button:hover:not(:disabled) {
+            background: #26c485;
+        }
+        .info-msg {
+            color: #627dac;
+            font-size: 1.07em;
+            margin: 12px 0 0 0;
+            text-align: center;
+        }
+        @media (max-width: 850px) {
+            .hall-container-grid { gap: 15px;}
+            .hall-card {width:97vw; max-width:332px;}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="user-info">Logged in as: <b>{{ username }}</b></div>
+        <h1>📅 College Hall Booking</h1>
+        <nav>
+            <a href="/dashboard" class="nav-link">📊 View Bookings</a>
+            <a href="/logout" class="nav-link logout-link">🚪 Logout</a>
+        </nav>
+    </header>
+
+    <div class="form-section">
+        <label for="bookingDate">Select Date:</label>
+        <input type="date" id="bookingDate" onchange="loadHalls()"> 
+        <button onclick="loadHalls()">Check Availability</button> 
+    </div>
+
+    <h2>Available Halls</h2>
+    <div class="hall-container-grid">
+        <!-- Auditorium card -->
+        <div class="hall-card available" id="auditorium-card">
+            <h3>Auditorium</h3>
+            <p>Capacity: <strong>300</strong></p>
+            <p>Status: <strong id="auditorium-status">✅ Available</strong></p>
+            <input type="number" id="att_auditorium" placeholder="No. of attendees" min="1" max="300" value="1">
+            <button id="bookAuditoriumBtn" onclick="bookHall('auditorium', document.getElementById('bookingDate').value, 'Auditorium')">Book Now</button>
+        </div>
+        <!-- PRR Hall (capacity 300) -->
+        <div class="hall-card available" id="prr-hall-card">
+            <h3>PRR Hall</h3>
+            <p>Capacity: <strong>300</strong></p>
+            <p>Status: <strong id="prr-hall-status">✅ Available</strong></p>
+            <input type="number" id="att_prr_hall" placeholder="No. of attendees" min="1" max="300" value="1">
+            <button id="bookPRRBtn" onclick="bookHall('prr_hall', document.getElementById('bookingDate').value, 'PRR Hall')">Book Now</button>
+        </div>
+        <!-- Seminar Halls (capacity 80) -->
+        <div class="hall-card available" id="cse-seminar-card">
+            <h3>CSE Seminar Hall</h3>
+            <p>Capacity: <strong>80</strong></p>
+            <p>Status: <strong id="cse-seminar-status">✅ Available</strong></p>
+            <input type="number" id="att_cse_seminar" placeholder="No. of attendees" min="1" max="80" value="1">
+            <button id="bookCSESeminarBtn" onclick="bookHall('cse_seminar', document.getElementById('bookingDate').value, 'CSE Seminar Hall')">Book Now</button>
+        </div>
+        <div class="hall-card available" id="mech-seminar-card">
+            <h3>Mech Seminar Hall</h3>
+            <p>Capacity: <strong>80</strong></p>
+            <p>Status: <strong id="mech-seminar-status">✅ Available</strong></p>
+            <input type="number" id="att_mech_seminar" placeholder="No. of attendees" min="1" max="80" value="1">
+            <button id="bookMechSeminarBtn" onclick="bookHall('mech_seminar', document.getElementById('bookingDate').value, 'Mech Seminar Hall')">Book Now</button>
+        </div>
+        <div class="hall-card available" id="ece-seminar-card">
+            <h3>ECE Seminar Hall</h3>
+            <p>Capacity: <strong>80</strong></p>
+            <p>Status: <strong id="ece-seminar-status">✅ Available</strong></p>
+            <input type="number" id="att_ece_seminar" placeholder="No. of attendees" min="1" max="80" value="1">
+            <button id="bookECESeminarBtn" onclick="bookHall('ece_seminar', document.getElementById('bookingDate').value, 'ECE Seminar Hall')">Book Now</button>
+        </div>
+        <div class="hall-card available" id="eee-seminar-card">
+            <h3>EEE Seminar Hall</h3>
+            <p>Capacity: <strong>80</strong></p>
+            <p>Status: <strong id="eee-seminar-status">✅ Available</strong></p>
+            <input type="number" id="att_eee_seminar" placeholder="No. of attendees" min="1" max="80" value="1">
+            <button id="bookEEESeminarBtn" onclick="bookHall('eee_seminar', document.getElementById('bookingDate').value, 'EEE Seminar Hall')">Book Now</button>
+        </div>
+        <div class="hall-card available" id="civil-seminar-card">
+            <h3>Civil Seminar Hall</h3>
+            <p>Capacity: <strong>80</strong></p>
+            <p>Status: <strong id="civil-seminar-status">✅ Available</strong></p>
+            <input type="number" id="att_civil_seminar" placeholder="No. of attendees" min="1" max="80" value="1">
+            <button id="bookCivilSeminarBtn" onclick="bookHall('civil_seminar', document.getElementById('bookingDate').value, 'Civil Seminar Hall')">Book Now</button>
+        </div>
+        <!-- Cyber Security Lab card (capacity 30) -->
+        <div class="hall-card available" id="cyber-security-lab-card">
+            <h3>Cyber Security Lab</h3>
+            <p>Capacity: <strong>30</strong></p>
+            <p>Status: <strong id="cyber-security-lab-status">✅ Available</strong></p>
+            <input type="number" id="att_cyber_lab" placeholder="No. of attendees" min="1" max="30" value="1">
+            <button id="bookCyberLabBtn" onclick="bookHall('cyber_lab', document.getElementById('bookingDate').value, 'Cyber Security Lab')">Book Now</button>
+        </div>
+        <!-- Cloud Lab card (capacity 30) -->
+        <div class="hall-card available" id="cloud-lab-card">
+            <h3>Cloud Lab</h3>
+            <p>Capacity: <strong>30</strong></p>
+            <p>Status: <strong id="cloud-lab-status">✅ Available</strong></p>
+            <input type="number" id="att_cloud_lab" placeholder="No. of attendees" min="1" max="30" value="1">
+            <button id="bookCloudLabBtn" onclick="bookHall('cloud_lab', document.getElementById('bookingDate').value, 'Cloud Lab')">Book Now</button>
+        </div>
+        <!-- HPC Lab with booking (capacity 60) -->
+        <div class="hall-card available" id="hpc-lab-card">
+            <h3>HPC Lab</h3>
+            <p>Capacity: <strong>60</strong></p>
+            <p>Status: <strong id="hpc-lab-status">✅ Available</strong></p>
+            <input type="number" id="att_hpc_lab" placeholder="No. of attendees" min="1" max="60" value="1">
+            <button id="bookHPCLabBtn" onclick="bookHall('hpc_lab', document.getElementById('bookingDate').value, 'HPC Lab')">Book Now</button>
+        </div>
+        <!-- CC-4 (capacity 60) -->
+        <div class="hall-card available" id="cc4-card">
+            <h3>CC-4</h3>
+            <p>Capacity: <strong>60</strong></p>
+            <p>Status: <strong id="cc4-status">✅ Available</strong></p>
+            <input type="number" id="att_cc4" placeholder="No. of attendees" min="1" max="60" value="1">
+            <button id="bookCC4Btn" onclick="bookHall('cc4', document.getElementById('bookingDate').value, 'CC-4')">Book Now</button>
+        </div>
+    </div>
+    <div id="halls" style="display: none;"></div> <!-- for dynamic JS insertion, hidden -->
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        function bookHall(hallId, date, hallName) {
+            let attendeesInput = null, capacity = null, statusId = null, btnId = null;
+            if (hallId === 'auditorium') {
+                attendeesInput = document.getElementById('att_auditorium');
+                capacity = 300; statusId = 'auditorium-status'; btnId = 'bookAuditoriumBtn';
+            } else if (hallId === 'prr_hall') {
+                attendeesInput = document.getElementById('att_prr_hall');
+                capacity = 300; statusId = 'prr-hall-status'; btnId = 'bookPRRBtn';
+            } else if (hallId === 'cse_seminar') {
+                attendeesInput = document.getElementById('att_cse_seminar');
+                capacity = 80; statusId = 'cse-seminar-status'; btnId = 'bookCSESeminarBtn';
+            } else if (hallId === 'mech_seminar') {
+                attendeesInput = document.getElementById('att_mech_seminar');
+                capacity = 80; statusId = 'mech-seminar-status'; btnId = 'bookMechSeminarBtn';
+            } else if (hallId === 'ece_seminar') {
+                attendeesInput = document.getElementById('att_ece_seminar');
+                capacity = 80; statusId = 'ece-seminar-status'; btnId = 'bookECESeminarBtn';
+            } else if (hallId === 'eee_seminar') {
+                attendeesInput = document.getElementById('att_eee_seminar');
+                capacity = 80; statusId = 'eee-seminar-status'; btnId = 'bookEEESeminarBtn';
+            } else if (hallId === 'civil_seminar') {
+                attendeesInput = document.getElementById('att_civil_seminar');
+                capacity = 80; statusId = 'civil-seminar-status'; btnId = 'bookCivilSeminarBtn';
+            } else if (hallId === 'cyber_lab') {
+                attendeesInput = document.getElementById('att_cyber_lab');
+                capacity = 30; statusId = 'cyber-security-lab-status'; btnId = 'bookCyberLabBtn';
+            } else if (hallId === 'cloud_lab') {
+                attendeesInput = document.getElementById('att_cloud_lab');
+                capacity = 30; statusId = 'cloud-lab-status'; btnId = 'bookCloudLabBtn';
+            } else if (hallId === 'hpc_lab') {
+                attendeesInput = document.getElementById('att_hpc_lab');
+                capacity = 60; statusId = 'hpc-lab-status'; btnId = 'bookHPCLabBtn';
+            } else if (hallId === 'cc4') {
+                attendeesInput = document.getElementById('att_cc4');
+                capacity = 60; statusId = 'cc4-status'; btnId = 'bookCC4Btn';
+            }
+            const attendees = attendeesInput ? attendeesInput.value : null;
+            if (!date) {
+                alert('Please select a date.');
+                return;
+            }
+            if (!attendees || attendees < 1 || attendees > capacity) {
+                alert('Please enter a valid number of attendees (1-' + capacity + ').');
+                return;
+            }
+            axios.post('/api/book', {
+                hall_id: hallId,
+                date: date,
+                attendees: attendees
+            }).then(res => {
+                alert('Booking successful!');
+                if (statusId && btnId) {
+                    document.getElementById(statusId).innerHTML = '❌ Booked';
+                    document.getElementById(btnId).disabled = true;
+                }
+            }).catch(err => {
+                alert('Booking failed: ' + (err.response?.data?.error || 'Error'));
+            });
+        }
+
+        // Reset availability UI on date selection
+        document.getElementById('bookingDate').addEventListener('change', () => {
+            // Always set halls to available and re-enable buttons
+            document.getElementById('auditorium-status').innerHTML = '✅ Available';
+            document.getElementById('bookAuditoriumBtn').disabled = false;
+
+            document.getElementById('prr-hall-status').innerHTML = '✅ Available';
+            document.getElementById('bookPRRBtn').disabled = false;
+
+            document.getElementById('cse-seminar-status').innerHTML = '✅ Available';
+            document.getElementById('bookCSESeminarBtn').disabled = false;
+
+            document.getElementById('mech-seminar-status').innerHTML = '✅ Available';
+            document.getElementById('bookMechSeminarBtn').disabled = false;
+
+            document.getElementById('ece-seminar-status').innerHTML = '✅ Available';
+            document.getElementById('bookECESeminarBtn').disabled = false;
+
+            document.getElementById('eee-seminar-status').innerHTML = '✅ Available';
+            document.getElementById('bookEEESeminarBtn').disabled = false;
+
+            document.getElementById('civil-seminar-status').innerHTML = '✅ Available';
+            document.getElementById('bookCivilSeminarBtn').disabled = false;
+
+            document.getElementById('cyber-security-lab-status').innerHTML = '✅ Available';
+            document.getElementById('bookCyberLabBtn').disabled = false;
+
+            document.getElementById('cloud-lab-status').innerHTML = '✅ Available';
+            document.getElementById('bookCloudLabBtn').disabled = false;
+
+            document.getElementById('hpc-lab-status').innerHTML = '✅ Available';
+            document.getElementById('bookHPCLabBtn').disabled = false;
+
+            document.getElementById('cc4-status').innerHTML = '✅ Available';
+            document.getElementById('bookCC4Btn').disabled = false;
+        });
+    </script>
+</body>
+</html>
+<html>
+<head>
     <title>Hall Booking System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -177,46 +574,5 @@
             .user-info {position: static; text-align: center; margin-bottom:12px;}
         }
     </style>
-</head>
-<body>
-    <header>
-        <div class="user-info">Logged in as: <strong>{{ username }}</strong></div>
-        <h1>College Hall Booking</h1>
-        <nav>
-            <a href="/dashboard" class="nav-link">📊 View Bookings</a>
-            <a href="/logout" class="nav-link logout-link">🚪 Logout</a>
-        </nav>
-    </header>
-    </div>
-
-    <h2>Available Halls</h2>
-    <div id="halls">
-    </div>
-    <div class="hall-containers">
-        <div class="hall-card"><h2>Auditorium</h2></div>
-        <div class="hall-card"><h2>CSE Seminar Hall</h2></div>
-        <div class="hall-card"><h2>Mech Seminar Hall</h2></div>
-        <div class="hall-card"><h2>ECE Seminar Hall</h2></div>
-        <div class="hall-card"><h2>EEE Seminar Hall</h2></div>
-        <div class="hall-card"><h2>Civil Seminar Hall</h2></div>
-        <div class="hall-card"><h2>Cuber Security Lab</h2></div>
-        <div class="hall-card"><h2>Cloud Lab</h2></div>
-        <div class="hall-card"><h2>HPC Lab</h2></div>
-        <div class="hall-card"><h2>CC-4</h2></div>
-    </div>
-
-    <div class="form-section">
-        <label for="bookingDate">Select Date:</label>
-        <input type="date" id="bookingDate" onchange="loadHalls()"> 
-        <button onclick="loadHalls()">Check Availability</button> 
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
-<html>
-<head>
-    <title>Hall Booking System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 </html>
