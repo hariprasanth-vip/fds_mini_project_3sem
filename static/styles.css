@@ -1,0 +1,159 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Header and Navigation */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ccc;
+    position: relative;
+}
+header h1 {
+    color: #1a4f8b;
+    margin-top: 5px;
+}
+.user-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 0.9em;
+    color: #555;
+    padding: 5px;
+}
+.nav-link {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #1a4f8b;
+    padding: 5px 10px;
+    border: 1px solid #1a4f8b;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+.nav-link:hover {
+    background: #1a4f8b;
+    color: white;
+}
+.logout-link {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+.logout-link:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Login Page Styling */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+.login-container input {
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.error-msg {
+    color: red;
+    margin-top: 15px;
+}
+.note {
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 15px;
+}
+
+/* Booking Form */
+.form-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: #e3f2fd;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.form-section input[type="date"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+button {
+    background: #1a4f8b;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* Hall Cards */
+h2 {
+    text-align: center;
+    color: #333;
+}
+#halls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+.hall-card {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 15px;
+    width: 250px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.hall-card.available {
+    border-left: 5px solid #28a745; 
+}
+.hall-card.booked {
+    border-left: 5px solid #dc3545; 
+    opacity: 0.7;
+}
+.hall-card input[type="number"] {
+    width: 80%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Dashboard Table */
+#bookingsTable {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: white;
+}
+#bookingsTable th, #bookingsTable td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+#bookingsTable th {
+    background-color: #1a4f8b;
+    color: white;
+}
+#loading-msg {
+    text-align: center;
+    color: #1a4f8b;
+}

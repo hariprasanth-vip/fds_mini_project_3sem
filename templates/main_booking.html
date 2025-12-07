@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hall Booking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #e9eafc 0%, #d8f3e8 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(90deg, #86c2f3 0%, #b7ffe0 100%);
+            padding: 28px 0 20px 0;
+            text-align: center;
+            box-shadow: 0px 2px 16px rgba(60, 80, 147, 0.12);
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .user-info {
+            text-align: right;
+            font-size: 1em;
+            color: #284682;
+            position: absolute;
+            top: 16px;
+            right: 42px;
+        }
+        header h1 {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #274b79;
+            letter-spacing: 1.2px;
+            margin: 0 0 10px 0;
+            background: linear-gradient(70deg, #2464ac 40%, #3edcb2 100%);
+            -webkit-background-clip: text;
+            color: transparent; background-clip: text;
+        }
+        nav {
+            margin-top: 14px;
+        }
+        .nav-link {
+            padding: 8px 21px;
+            margin: 0 6px;
+            color: #2464ac;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 7px;
+            background: #f2faff;
+            box-shadow: 0 1.5px 8px #aae8fe28;
+            transition: background 0.17s, color 0.17s;
+        }
+        .nav-link:hover, .logout-link:hover {
+            background: #2abcb8;
+            color: #fff;
+        }
+        .logout-link {
+            background: #ffdce2;
+            color: #bf3858;
+            border: none;
+        }
+        .hall-containers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 0;
+            margin-bottom: 34px;
+        }
+        .hall-card {
+            min-width: 175px;
+            background: linear-gradient(135deg, #f6fdff 78%, #e3fad0 100%);
+            border-radius: 14px;
+            box-shadow: 0 2px 15px 0 rgba(52, 102, 153, 0.09);
+            padding: 22px 10px;
+            text-align: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border: 1.3px solid #d3e3f8;
+            flex: 1 0 175px;
+            max-width: 235px;
+        }
+        .hall-card h2 {
+            margin: 0;
+            font-size: 1.25em;
+            color: #297661;
+            background: linear-gradient(70deg, #4688da 20%, #40cac4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 600;
+        }
+        .hall-card:hover {
+            transform: translateY(-7px) scale(1.025);
+            box-shadow: 0 6px 26px 0 rgba(24, 109, 188, 0.17);
+        }
+        .form-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 34px;
+            background: rgba(245,255,255,0.97);
+            padding: 18px 18px;
+            border-radius: 13px;
+            box-shadow: 0 1.5px 10px 0 rgba(78, 205, 196, 0.12);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-section label {
+            font-size: 1.14em;
+            font-weight: 500;
+            color: #2b486e;
+            margin-bottom: 0;
+        }
+        .form-section input[type="date"] {
+            padding: 8.5px 12px;
+            border-radius: 6px;
+            border: 1px solid #c5defc;
+            font-size: 1em;
+            background: #f4fafd;
+            color: #234;
+        }
+        .form-section button {
+            background: linear-gradient(90deg, #08cb9e 0%, #3db1e2 100%);
+            color: #fff;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 6px;
+            font-size: 1.07em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1.5px 10px #c1f9d6b9;
+        }
+        .form-section button:hover {
+            background: linear-gradient(90deg, #177cc4 0%, #32e1ae 100%);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 18px;
+            margin-top: 20px;
+            font-weight: 600;
+            color: #193e72;
+            background: linear-gradient(75deg, #3467c3 40%, #48c793 100%);
+            -webkit-background-clip: text;
+            color: transparent;
+            background-clip: text;
+            font-size: 1.23em;
+        }
+        #halls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 27px;
+            justify-content: center;
+            align-items: stretch;
+            margin: 0 auto 40px auto;
+            min-height: 60px;
+        }
+        @media (max-width: 1100px) {
+            .hall-containers {gap: 17px;}
+            .hall-card {padding:14px 4px;}
+        }
+        @media (max-width: 690px) {
+            .hall-containers {flex-wrap: wrap;}
+            header {padding: 18px 0 14px 0;}
+        }
+        @media (max-width: 500px) {
+            .hall-card {min-width: 98vw; max-width: none;}
+            .hall-containers {gap: 10px;}
+            .form-section {max-width: 99vw;}
+            .user-info {position: static; text-align: center; margin-bottom:12px;}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="user-info">Logged in as: <strong>{{ username }}</strong></div>
+        <h1>College Hall Booking</h1>
+        <nav>
+            <a href="/dashboard" class="nav-link">📊 View Bookings</a>
+            <a href="/logout" class="nav-link logout-link">🚪 Logout</a>
+        </nav>
+    </header>
+    </div>
+
+    <h2>Available Halls</h2>
+    <div id="halls">
+    </div>
+    <div class="hall-containers">
+        <div class="hall-card"><h2>Auditorium</h2></div>
+        <div class="hall-card"><h2>CSE Seminar Hall</h2></div>
+        <div class="hall-card"><h2>Mech Seminar Hall</h2></div>
+        <div class="hall-card"><h2>ECE Seminar Hall</h2></div>
+        <div class="hall-card"><h2>EEE Seminar Hall</h2></div>
+        <div class="hall-card"><h2>Civil Seminar Hall</h2></div>
+        <div class="hall-card"><h2>Cuber Security Lab</h2></div>
+        <div class="hall-card"><h2>Cloud Lab</h2></div>
+        <div class="hall-card"><h2>HPC Lab</h2></div>
+        <div class="hall-card"><h2>CC-4</h2></div>
+    </div>
+
+    <div class="form-section">
+        <label for="bookingDate">Select Date:</label>
+        <input type="date" id="bookingDate" onchange="loadHalls()"> 
+        <button onclick="loadHalls()">Check Availability</button> 
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+<html>
+<head>
+    <title>Hall Booking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+</html>

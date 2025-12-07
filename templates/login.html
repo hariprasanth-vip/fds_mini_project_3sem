@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Staff Login</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #e9eafc 0%, #d8f3e8 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: #fff; /* Adjust font color for gradient background */
+        }
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .form-box {
+            background: rgba(255,255,255,0.95);
+            padding: 32px 28px;
+            box-shadow: 0 6px 32px rgba(44,62,80,0.15);
+            border-radius: 10px;
+            width: 350px;
+            margin-bottom: 16px;
+            color: #234; /* Dark font color on white form */
+        }
+        .form-box h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #1860a9;
+            text-align: center;
+            font-weight: 500;
+        }
+        .form-box label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 1rem;
+            color: #345;
+        }
+        .form-box input[type="text"],
+        .form-box input[type="password"],
+        .form-box input[type="email"] {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 18px;
+            border: 1px solid #ccd4de;
+            border-radius: 5px;
+            background: #f6f8fa;
+            font-size: 1rem;
+            color: #234;
+            transition: border-color 0.2s;
+        }
+        /* Set placeholder text color for better contrast */
+        .form-box input::placeholder {
+            color: #888da8;
+        }
+    </style>
+<head>
+    <title>Staff Login</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #100217cb 0%, #6609e8 50%, #007b66 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .form-box {
+            background: #fff;
+            padding: 32px 28px;
+            box-shadow: 0 6px 32px rgba(44,62,80,0.15);
+            border-radius: 10px;
+            width: 350px;
+            margin-bottom: 16px;
+        }
+        .form-box h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #1860a9;
+            text-align: center;
+            font-weight: 500;
+        }
+        .form-box label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 1rem;
+            color: #345;
+        }
+        .form-box input[type="text"],
+        .form-box input[type="password"],
+        .form-box input[type="email"] {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 18px;
+            border: 1px solid #ccd4de;
+            border-radius: 5px;
+            background: #f6f8fa;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-box input:focus {
+            border-color: #1860a9;
+            outline: none;
+        }
+        .form-box button {
+            width: 100%;
+            background: #1860a9;
+            color: #fff;
+            border: none;
+            padding: 10px 0;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: background 0.2s;
+        }
+        .form-box button:hover {
+            background: #0f3f78;
+        }
+        .bottom-section {
+            text-align: center;
+            margin-top: 12px;
+        }
+        .bottom-section button {
+            background: #ebedf0;
+            color: #222;
+            font-size: 1rem;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .bottom-section button:hover {
+            background: #b8c4d1;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 1em;
+            margin-top: 12px;
+            margin-bottom: 0;
+            text-align: center;
+        }
+        .note {
+            color: #9aa0a6;
+            text-align: center;
+            font-size: 0.98em;
+        }
+        @media (max-width: 500px) {
+            .form-box {width:87vw; min-width: 0;}
+        }
+    </style>
+    <script>
+        function showRegisterForm() {
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('login-section').style.display = 'none';
+        }
+        function backToLogin() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-section').style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div id="login-section" class="form-box">
+            <h2>🔑 Hall Booking Staff Login</h2>
+            <form method="POST" action="/login" autocomplete="on">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+
+                <button type="submit">Login</button>
+            </form>
+            {% if error %}
+                <div class="error-msg">{{ error }}</div>
+            {% endif %}
+            <div class="note">
+                Use: <b>staff</b> / <b>staffpass</b>
+            </div>
+        </div>
+
+        <div id="register-form" class="form-box" style="display:none;">
+            <h2>Register</h2>
+            <form method="POST" action="/register" autocomplete="on">
+                <label for="staff_name">Staff Name:</label>
+                <input type="text" id="staff_name" name="staff_name" required autocomplete="name">
+
+                <label for="email">Email ID:</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+
+                <label for="password_reg">Password:</label>
+                <input type="password" id="password_reg" name="password" required autocomplete="new-password">
+
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password">
+
+                <button type="submit">Submit Registration</button>
+                <button type="button" style="background:#fff;color:#1860a9;" onclick="backToLogin()">Back to Login</button>
+            </form>
+        </div>
+
+        <div class="bottom-section">
+            <span>Don't have an account?</span>
+            <button type="button" onclick="showRegisterForm()">Register</button>
+        </div>
+    </div>
+</body>
+</html>
